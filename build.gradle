@@ -1,0 +1,83 @@
+buildscript {
+	ext {
+		versionSpringFox = "2.9.2"
+		versionGroovy = "1.1-groovy-2.4"
+		versionApacheComons = "3.8.1"
+		versionJaxb = "2.3.1"
+		versionGroovyBuilder = "0.7.1"
+		versionMapstruct = "1.3.0.Final"
+	}
+	dependencies {
+		classpath 'com.bmuschko:gradle-tomcat-plugin:2.2.2'
+	}
+}
+
+plugins {
+	id 'org.springframework.boot' version '2.1.6.RELEASE'
+	id 'java'
+	id 'war'
+	id 'idea'
+	id 'net.ltgt.apt' version '0.9'
+}
+
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'groovy'
+apply plugin: 'com.bmuschko.tomcat'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+//group = 'com.signet'
+//version = '0.0.1-SNAPSHOT'
+
+configurations {
+	developmentOnly
+	runtimeClasspath {
+		extendsFrom developmentOnly
+	}
+}
+
+
+repositories {
+	mavenCentral()
+	jcenter()
+}
+
+tasks.withType(JavaCompile) {
+	options.compilerArgs = [
+			'-Amapstruct.suppressGeneratorTimestamp=true'
+	]
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	runtimeOnly 'com.h2database:h2'
+	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	compile "org.apache.commons:commons-lang3:${versionApacheComons}"
+	compile "io.springfox:springfox-swagger-ui:${versionSpringFox}"
+	compile "io.springfox:springfox-swagger2:${versionSpringFox}"
+	compile "io.springfox:springfox-bean-validators:${versionSpringFox}"
+	compile "javax.xml.bind:jaxb-api:${versionJaxb}"
+	compile "technology.tabula:tabula:1.0.3"
+	compile "org.codehaus.groovy.modules.http-builder:http-builder:${versionGroovyBuilder}"
+	compile "org.springframework.boot:spring-boot-starter-actuator"
+	compile "org.mapstruct:mapstruct:${versionMapstruct}"
+	compile "org.mapstruct:mapstruct-jdk8:${versionMapstruct}"
+	compileOnly "org.mapstruct:mapstruct-processor:${versionMapstruct}"
+	annotationProcessor "org.mapstruct:mapstruct-processor:${versionMapstruct}"
+	def tomcatVersion = '7.0.59'
+	tomcat "org.apache.tomcat.embed:tomcat-embed-core:${tomcatVersion}",
+	 "org.apache.tomcat.embed:tomcat-embed-logging-juli:${tomcatVersion}",
+	 "org.apache.tomcat.embed:tomcat-embed-jasper:${tomcatVersion}"
+
+	testCompile "org.spockframework:spock-core:${versionGroovy}"
+	testCompile "org.spockframework:spock-spring:${versionGroovy}"
+}
+
+
+bootRun {
+    systemProperty "spring.profiles.active", "local"
+}
